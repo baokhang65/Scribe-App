@@ -1,11 +1,12 @@
 import express from 'express'
-import { getAllTasks, createTask, updateTask, deleteTask } from '../controllers/taskControllers.js'
+import { getAllTasks, createTask, updateTask, deleteTask, smartCreateTask } from '../controllers/taskControllers.js'
 
 const router = express.Router()
 
 router.get("/", getAllTasks)
 
 router.post("/", createTask)
+router.post("/smart", smartCreateTask)
 
 router.put("/:id", updateTask)
 

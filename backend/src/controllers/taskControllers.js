@@ -1,4 +1,8 @@
 import Task from '../models/taskModel.js'
+import antlr4 from 'antlr4'
+import SmartTodoLexer from '../parser/SmartTodoLexer.js'
+import SmartTodoParser from '../parser/SmartTodoParser.js'
+import { TaskDataVisitor } from '../parser/TaskDataVisitor.js'
 
 export const getAllTasks = async (req, res) => {
   const {filter =  'today'} = req.query
@@ -33,7 +37,7 @@ export const getAllTasks = async (req, res) => {
         $facet: {
           tasks: [{$sort: { createdAt: -1 }}],
           activeCount: [{$match: { status: 'active' }}, { $count: 'count' }],
-          completeCount: [{$match: { status: 'active' }}, { $count: 'count' }],
+          completeCount: [{$match: { status: 'completed' }}, { $count: 'count' }],
         }
       }
     ])
@@ -92,5 +96,31 @@ export const deleteTask = async (req, res) => {
   } catch (error) {
     console.error("Error deleting task:", error)
     res.status(500).json({ message: "Error deleting task" })
+  }
+}
+
+export const smartCreateTask = async (req, res) => {
+  try {
+    const { rawInput } = req.body
+
+    if (!rawInput) {
+      return res.status(400).json({ message: "rawInput is required" })
+    }
+
+    const chars = new antlr4.InputStream(rawInput)
+    const lexer = new SmartTodoLexer(chars) 
+    const tokens = new antlr4.CommonTokenStream(lexer)
+    const parser = new SmartTodoParser(tokens)
+    const tree = parser.startRule()
+
+    const visitor = new TaskDataVisitor()
+    const taskData = visitor.visit(tree)
+
+    const task = new Task(taskData)
+    const newTask = await task.save()
+    res.status(201).json({ task: newTask })
+  } catch (error) {
+    console.error("Error smart-creating task:", error)
+    res.status(500).json({ message: "Error smart-creating task" })
   }
 }

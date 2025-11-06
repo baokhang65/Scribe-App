@@ -7,9 +7,10 @@ import { Input } from './ui/input'
 import api from '@/lib/axios'
 import { toast } from 'sonner'
 import { useState } from 'react'
+import { Tag, AlarmClock, Flag } from 'lucide-react'
 
 const TaskCard = ({ task, index, handleTaskChanged }) => {
-  const [isEditing, setIsEditing] = useState(false)
+  const [isEditing, setIsEditing] = useState(false) 
   const [updatedTaskTitle, setUpdatedTaskTitle] = useState(task.title || '')
 
   const deleteTask = async (taskId) => {
@@ -103,6 +104,39 @@ const TaskCard = ({ task, index, handleTaskChanged }) => {
               {task.title}
             </p>
           )}
+
+          <div className="flex flex-wrap items-center gap-x-3 gap-y-1 mt-1.5">
+            
+            {task.tags && task.tags.length > 0 && (
+              <div className="flex items-center gap-1 px-2 py-0.5 rounded-full bg-blue-100 text-blue-700">
+                <Tag className="size-3" />
+                <span className="text-xs font-medium">{task.tags[0]}</span>
+              </div>
+            )}
+
+            {task.priority && (
+               <div className={cn(
+                  "flex items-center gap-1",
+                  task.priority === 1 && "text-red-600",
+                  task.priority === 2 && "text-yellow-600",
+                  task.priority === 3 && "text-gray-500"
+               )}>
+                <Flag className="size-3" />
+                <span className="text-xs font-medium">
+                  {task.priority === 1 ? 'High' : task.priority === 2 ? 'Medium' : 'Low'}
+                </span>
+              </div>
+            )}
+
+            {task.dueDate && (
+              <div className="flex items-center gap-1 text-muted-foreground">
+                <AlarmClock className="size-3" />
+                <span className="text-xs">
+                  {new Date(task.dueDate).toLocaleDateString()}
+                </span>
+              </div>
+            )}
+          </div>
 
           <div className="flex items-center gap-2 mt-1">
             <Calendar className="size-3 text-muted-foreground" />

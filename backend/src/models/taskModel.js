@@ -15,6 +15,18 @@ const taskSchema = new mongoose.Schema(
     completedAt: { 
       type: Date,
       default: null
+    },
+    priority: {
+      type: Number,
+      enum: [1, 2, 3],
+      default: 3
+    },
+    tags : [
+      { type: String, trim: true }
+    ],
+    dueDate: {
+      type: Date,
+      default: null
     }
   },
   { 
